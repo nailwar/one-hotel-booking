@@ -1,0 +1,16 @@
+.vs/
+.vscode/
+.idea/
+_NCrunch_*/
+*.ncrunchsolution
+*.ncrunchproject
+coverage.opencover.xml
+bin/
+obj/
+
+*.user
+/.sonarqube
+*.DotSettings.User
+nCrunchTemp_*.csproj
+/tools
+/publish
