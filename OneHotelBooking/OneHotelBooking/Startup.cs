@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using Microsoft.EntityFrameworkCore;
+using OneHotelBooking.Repositories;
 using OneHotelBooking.Services;
 
 namespace OneHotelBooking

@@ -6,6 +6,9 @@ using OneHotelBooking.Exceptions;
 
 namespace OneHotelBooking.Controllers
 {
+    /// <summary>
+    /// Base class for all controllers.
+    /// </summary>
     public abstract class HotelControllerBase : ControllerBase
     {
         private readonly ILogger _logger;
@@ -15,6 +18,12 @@ namespace OneHotelBooking.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Wrapper for controller method body execution, used to generalize exception handling logic.
+        /// Executes the specified function.
+        /// </summary>
+        /// <param name="func">Function that represents expected execution.</param>
+        /// <returns>ActionResult.</returns>
         protected IActionResult Execute(Func<IActionResult> func)
         {
             try
@@ -31,6 +40,12 @@ namespace OneHotelBooking.Controllers
             }
         }
 
+        /// <summary>
+        /// Wrapper for asynchronous controller method body execution, used to generalize exception handling logic.
+        /// Executes the specified function as an asynchronous operation.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
         protected async Task<IActionResult> ExecuteAsync(Func<Task<IActionResult>> func)
         {
             try
@@ -47,6 +62,11 @@ namespace OneHotelBooking.Controllers
             }
         }
 
+        /// <summary>
+        /// Converts exception to expected response.
+        /// </summary>
+        /// <param name="mappedException">The mapped exception.</param>
+        /// <returns>IActionResult.</returns>
         private IActionResult ToExpectedResponse(IResponseMappedException mappedException)
         {
             var errorData = mappedException.ToResponse();
@@ -61,6 +81,11 @@ namespace OneHotelBooking.Controllers
             };
         }
 
+        /// <summary>
+        /// Converts unknown exception to expected response.
+        /// </summary>
+        /// <param name="e">The mapped exception.</param>
+        /// <returns>IActionResult.</returns>
         private IActionResult ToUnknownResponse(Exception e)
         {
             _logger.LogError(e, "Unknown error while executing request");

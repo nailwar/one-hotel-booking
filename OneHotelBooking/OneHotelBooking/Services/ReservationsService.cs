@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OneHotelBooking.DbModels;
 using OneHotelBooking.Exceptions;
 using OneHotelBooking.Models;
+using OneHotelBooking.Repositories;
 
 namespace OneHotelBooking.Services
 {

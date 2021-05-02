@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace OneHotelBooking
+namespace OneHotelBooking.Repositories
 {
     public class HotelRepository : IRepository
     {
