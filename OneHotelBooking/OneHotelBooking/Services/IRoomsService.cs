@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using OneHotelBooking.DbModels;
 using OneHotelBooking.Models;
 
 namespace OneHotelBooking.Services

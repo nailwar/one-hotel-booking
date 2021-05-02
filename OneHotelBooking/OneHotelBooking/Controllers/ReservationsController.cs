@@ -1,11 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using OneHotelBooking.Models;
+using OneHotelBooking.Services;
 
 namespace OneHotelBooking.Controllers
 {
@@ -14,43 +13,80 @@ namespace OneHotelBooking.Controllers
     public class ReservationsController : ControllerBase
     {
         private readonly ILogger<ReservationsController> _logger;
+        private readonly IReservationsService _reservationsService;
 
-        public ReservationsController(ILogger<ReservationsController> logger)
+        /// <summary>
+        /// Controller for Reservations CRUD operations.
+        /// </summary>
+        /// <param name="logger">Logger</param>
+        /// <param name="reservationsService">ReservationsService</param>
+        public ReservationsController(ILogger<ReservationsController> logger, IReservationsService reservationsService)
         {
             _logger = logger;
+            _reservationsService = reservationsService;
         }
 
-        // GET: api/<ReservationsController>
+        /// <summary>
+        /// Gets all reservations.
+        /// </summary>
+        /// <returns>ReservationInfo</returns>
         [HttpGet]
-        public IEnumerable<string> Get()
+        [ProducesResponseType(typeof(IEnumerable<ReservationInfo>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get([FromQuery]int? roomId = null)
         {
-            return new string[] { "value1", "value2" };
+            return roomId.HasValue ? 
+                new OkObjectResult(await _reservationsService.GetByRoomId(roomId.Value)) : 
+                new OkObjectResult(await _reservationsService.GetAll());
         }
 
-        // GET api/<ReservationsController>/5
+        /// <summary>
+        /// Gets the reservation by identifier.
+        /// </summary>
+        /// <param name="id">Reservation identifier.</param>
+        /// <returns>ReservationInfo</returns>
         [HttpGet("{id}")]
-        public string Get(int id)
+        [ProducesResponseType(typeof(ReservationInfo), (int)HttpStatusCode.OK)] //:TODO ErrorResponse
+        public async Task<IActionResult> Get(int id)
         {
-            return "value";
+            return new OkObjectResult(await _reservationsService.GetById(id));
         }
 
-        // POST api/<ReservationsController>
+        /// <summary>
+        /// Adds new reservation.
+        /// </summary>
+        /// <param name="reservation">Reservation model.</param>
+        /// <returns>ReservationInfo</returns>
         [HttpPost]
-        public void Post([FromBody] string value)
+        [ProducesResponseType(typeof(ReservationInfo), (int)HttpStatusCode.Created)] //:TODO ErrorResponse
+        public async Task<IActionResult> Post([FromBody] Reservation reservation)
         {
-
+            return new OkObjectResult(await _reservationsService.Add(reservation));
         }
 
-        // PUT api/<ReservationsController>/5
+        /// <summary>
+        /// Updates the reservation.
+        /// </summary>
+        /// <param name="id">Reservation identifier.</param>
+        /// <param name="reservation">Reservation model.</param>
+        /// <returns>ReservationInfo</returns>
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [ProducesResponseType(typeof(ReservationInfo), (int)HttpStatusCode.OK)] //:TODO ErrorResponse
+        public async Task<IActionResult> Put(int id, [FromBody] Reservation reservation)
         {
+            return new OkObjectResult(await _reservationsService.Update(id, reservation));
         }
 
-        // DELETE api/<ReservationsController>/5
+        /// <summary>
+        /// Deletes the reservation.
+        /// </summary>
+        /// <param name="id">Reservation identifier.</param>
+        /// <returns>HTTPStatusCode.</returns>
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        [ProducesResponseType((int)HttpStatusCode.OK)] //:TODO ErrorResponse
+        public async Task<IActionResult> Delete(int id)
         {
+            await _reservationsService.Delete(id);
+            return new OkResult();
         }
     }
 }
