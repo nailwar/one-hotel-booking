@@ -16,6 +16,8 @@ namespace OneHotelBooking.EntityConfigurations
             builder.Property(p => p.CreatedDate).HasColumnType("datetime").HasDefaultValueSql("getutcdate()");
             builder.Property(p => p.StartDate).HasColumnType("datetime").IsRequired();
             builder.Property(p => p.EndDate).HasColumnType("datetime").IsRequired();
+
+            builder.HasData(DataSeed.Reservations);
         }
     }
 }

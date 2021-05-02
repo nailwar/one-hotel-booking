@@ -16,6 +16,8 @@ namespace OneHotelBooking.EntityConfigurations
             builder.Property(p => p.Description).HasColumnType("varchar(2048)");
 
             builder.HasIndex(p => p.Number).IsUnique();
+
+            builder.HasData(DataSeed.Rooms);
         }
     }
 }
