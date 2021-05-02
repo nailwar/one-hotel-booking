@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -34,11 +35,11 @@ namespace OneHotelBooking.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ReservationInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
-        public Task<IActionResult> Get([FromQuery]int? roomId = null)
+        public Task<IActionResult> Get([FromQuery]int? roomId = default, [FromQuery]DateTime startDate = default, [FromQuery]DateTime endDate = default)
         {
             return roomId.HasValue ?
-                ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetByRoomId(roomId.Value))) :
-                ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetAll()));
+                ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetByRoomId(roomId.Value, startDate, endDate))) :
+                ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetAll(startDate, endDate)));
         }
 
         /// <summary>
