@@ -1,9 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using OneHotelBooking.DbModels;
+using OneHotelBooking.Exceptions;
 using OneHotelBooking.Models;
+using OneHotelBooking.DbModels;
 
 namespace OneHotelBooking.Services
 {
@@ -28,7 +28,7 @@ namespace OneHotelBooking.Services
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == roomId);
             if (dbRoom == null)
             {
-                throw new Exception("Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Room {roomId} not found.");
             }
 
             return ToRoomInfoModel(dbRoom);
@@ -39,7 +39,7 @@ namespace OneHotelBooking.Services
             var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number);
             if (isNameNotUnique)
             {
-                throw new Exception("Name is not unique"); //TODO:ValidationException
+                throw new InputValidationException($"Room {room.Number} already added.");
             }
 
             var dbRoom = new DbRoom
@@ -61,13 +61,13 @@ namespace OneHotelBooking.Services
             if (dbRoom == null)
             {
 
-                throw new Exception("Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Room {roomId} not found.");
             }
 
             var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number && r.Id != roomId);
             if (isNameNotUnique)
             {
-                throw new Exception("Name is not unique"); //TODO:ValidationException
+                throw new InputValidationException($"Room {room.Number} already exists, use another number.");
             }
 
             dbRoom.Number = room.Number;
@@ -84,7 +84,7 @@ namespace OneHotelBooking.Services
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == roomId);
             if (dbRoom == null)
             {
-                throw new Exception("Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Room {roomId} not found.");
             }
 
             _repository.Remove(dbRoom);

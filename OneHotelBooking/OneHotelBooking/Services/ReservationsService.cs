@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OneHotelBooking.DbModels;
+using OneHotelBooking.Exceptions;
 using OneHotelBooking.Models;
 
 namespace OneHotelBooking.Services
@@ -28,7 +28,7 @@ namespace OneHotelBooking.Services
             var dbReservation = await _repository.Get<DbReservation>().FirstOrDefaultAsync(r => r.Id == reservationId);
             if (dbReservation == null)
             {
-                throw new Exception("Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Reservation {reservationId} not found.");
             }
 
             return ToReservationInfoModel(dbReservation);
@@ -39,7 +39,7 @@ namespace OneHotelBooking.Services
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == roomId);
             if (dbRoom == null)
             {
-                throw new Exception("Room Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Room {roomId} not found.");
             }
 
             return await _repository.Get<DbReservation>()
@@ -53,7 +53,7 @@ namespace OneHotelBooking.Services
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == reservation.RoomId);
             if (dbRoom == null)
             {
-                throw new Exception("Room Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Room {reservation.RoomId} not found.");
             }
 
             //TODO Check for add ability
@@ -78,13 +78,13 @@ namespace OneHotelBooking.Services
             if (dbReservation == null)
             {
 
-                throw new Exception("Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Reservation {reservationId} not found.");
             }
 
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == reservation.RoomId);
             if (dbRoom == null)
             {
-                throw new Exception("Room Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Room {reservation.RoomId} not found.");
             }
 
             //TODO Check for update ability
@@ -104,7 +104,7 @@ namespace OneHotelBooking.Services
             var dbReservation = await _repository.Get<DbReservation>().FirstOrDefaultAsync(r => r.Id == reservationId);
             if (dbReservation == null)
             {
-                throw new Exception("Not Found"); //TODO:NotFoundException
+                throw new EntityNotFoundException($"Reservation {reservationId} not found.");
             }
 
             _repository.Remove(dbReservation);

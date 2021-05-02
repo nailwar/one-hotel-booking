@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using OneHotelBooking.Exceptions;
 using OneHotelBooking.Models;
 using OneHotelBooking.Services;
 
@@ -10,7 +11,7 @@ namespace OneHotelBooking.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RoomsController : ControllerBase
+    public class RoomsController : HotelControllerBase
     {
         private readonly ILogger<RoomsController> _logger;
         private readonly IRoomsService _roomsService;
@@ -20,7 +21,7 @@ namespace OneHotelBooking.Controllers
         /// </summary>
         /// <param name="logger">Logger</param>
         /// <param name="roomsService">RoomsService</param>
-        public RoomsController(ILogger<RoomsController> logger, IRoomsService roomsService)
+        public RoomsController(ILogger<RoomsController> logger, IRoomsService roomsService) : base(logger)
         {
             _logger = logger;
             _roomsService = roomsService;
@@ -32,9 +33,9 @@ namespace OneHotelBooking.Controllers
         /// <returns>RoomInfo</returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<RoomInfo>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get()
+        public Task<IActionResult> Get()
         {
-            return new OkObjectResult(await _roomsService.GetAll());
+            return ExecuteAsync(async () => new OkObjectResult(await _roomsService.GetAll()));
         }
 
         /// <summary>
@@ -43,10 +44,11 @@ namespace OneHotelBooking.Controllers
         /// <param name="id">Room identifier.</param>
         /// <returns>RoomInfo</returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(RoomInfo), (int)HttpStatusCode.OK)] //:TODO ErrorResponse
-        public async Task<IActionResult> Get(int id)
+        [ProducesResponseType(typeof(RoomInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        public Task<IActionResult> Get(int id)
         {
-            return new OkObjectResult(await _roomsService.GetById(id));
+            return ExecuteAsync(async () => new OkObjectResult(await _roomsService.GetById(id)));
         }
 
         /// <summary>
@@ -55,10 +57,11 @@ namespace OneHotelBooking.Controllers
         /// <param name="room">Room model.</param>
         /// <returns>RoomInfo</returns>
         [HttpPost]
-        [ProducesResponseType(typeof(RoomInfo), (int)HttpStatusCode.Created)] //:TODO ErrorResponse
-        public async Task<IActionResult> Post([FromBody] Room room)
+        [ProducesResponseType(typeof(RoomInfo), (int)HttpStatusCode.Created)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
+        public Task<IActionResult> Post([FromBody] Room room)
         {
-            return new OkObjectResult(await _roomsService.Add(room));
+            return ExecuteAsync(async () => new OkObjectResult(await _roomsService.Add(room)));
         }
 
         /// <summary>
@@ -68,10 +71,12 @@ namespace OneHotelBooking.Controllers
         /// <param name="room">Room model.</param>
         /// <returns>RoomInfo</returns>
         [HttpPut("{id}")]
-        [ProducesResponseType(typeof(RoomInfo), (int)HttpStatusCode.OK)] //:TODO ErrorResponse
-        public async Task<IActionResult> Put(int id, [FromBody] Room room)
+        [ProducesResponseType(typeof(RoomInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        public Task<IActionResult> Put(int id, [FromBody] Room room)
         {
-            return new OkObjectResult(await _roomsService.Update(id, room));
+            return ExecuteAsync(async () => new OkObjectResult(await _roomsService.Update(id, room)));
         }
 
         /// <summary>
@@ -80,11 +85,15 @@ namespace OneHotelBooking.Controllers
         /// <param name="id">Room identifier.</param>
         /// <returns>HTTPStatusCode.</returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)] //:TODO ErrorResponse
-        public async Task<IActionResult> Delete(int id)
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
+        public Task<IActionResult> Delete(int id)
         {
-            await _roomsService.Delete(id);
-            return new OkResult();
+            return ExecuteAsync(async () =>
+            {
+                await _roomsService.Delete(id);
+                return new OkResult();
+            });
         }
     }
 }

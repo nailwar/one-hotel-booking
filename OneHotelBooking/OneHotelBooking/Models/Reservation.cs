@@ -8,6 +8,7 @@ namespace OneHotelBooking.Models
         [Required]
         public int RoomId { get; set; }
         [Required]
+        [StringLength(1024)]
         public string GuestInfo { get; set; }
         [Required]
         public DateTime StartDate { get; set; }

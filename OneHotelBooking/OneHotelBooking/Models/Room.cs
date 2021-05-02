@@ -7,6 +7,7 @@ namespace OneHotelBooking.Models
         [Required]
         public int Number { get; set; }
         public float Price { get; set; }
+        [StringLength(2048)]
         public string Description { get; set; }
     }
 }
