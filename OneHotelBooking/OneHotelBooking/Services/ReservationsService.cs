@@ -176,7 +176,7 @@ namespace OneHotelBooking.Services
         {
             if (startDate >= endDate)
             {
-                throw new InputValidationException($"Start date {startDate} can't be after or on the same End date {endDate}");
+                throw new InputValidationException($"Start date {startDate} is later or on the same End date {endDate}");
             }
 
             var reserveDuration = (int)(endDate - startDate).TotalDays;
@@ -193,7 +193,7 @@ namespace OneHotelBooking.Services
 
             if (reserveAdvanceDays > MaxReserveAdvanceDays)
             {
-                throw new InputValidationException($"Start of reservation can't be more than {MaxReserveAdvanceDays} days in advance.");
+                throw new InputValidationException($"Start of reservation more than {MaxReserveAdvanceDays} days in advance.");
             }
         }
 
