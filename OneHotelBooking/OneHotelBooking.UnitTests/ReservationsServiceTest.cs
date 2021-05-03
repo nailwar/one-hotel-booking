@@ -27,7 +27,7 @@ namespace OneHotelBooking.UnitTests
         private static readonly DbReservation[] _dbReservations = new[]
         {
             new DbReservation { Id = 1, RoomId = 1, GuestInfo = "G1", StartDate = new DateTime(2021, 5, 10), EndDate = new DateTime(2021, 5, 13)},
-            new DbReservation { Id = 2, RoomId = 1, GuestInfo = "G2", StartDate = new DateTime(2021, 5, 18), EndDate = new DateTime(2021, 5, 20)},
+            new DbReservation { Id = 2, RoomId = 1, GuestInfo = "G2", StartDate = new DateTime(2021, 5, 18), EndDate = new DateTime(2021, 5, 19)},
             new DbReservation { Id = 3, RoomId = 2, GuestInfo = "G3", StartDate = new DateTime(2021, 5, 5), EndDate = new DateTime(2021, 5, 8)}
         };
 
@@ -64,7 +64,7 @@ namespace OneHotelBooking.UnitTests
             await _hotelContext.DisposeAsync();
         }
 
-        [Test]
+        [Test, Order(1)]
         public async Task GetAll_Called_ReturnsReservations()
         {
             var result = await _reservationsService.GetAll();
@@ -153,6 +153,19 @@ namespace OneHotelBooking.UnitTests
             Assert.ThrowsAsync<InputValidationException>(async () => await _reservationsService.Add(reservation));
         }
         
+        [TestCaseSource(nameof(InvalidDates))]
+        public void Add_InvalidDates_ThrowsValidationException(DateTime startDate, DateTime endDate)
+        {
+            var reservation = new Reservation
+            {
+                RoomId = 1,
+                GuestInfo = "G4",
+                StartDate = startDate,
+                EndDate = endDate
+            };
+            Assert.ThrowsAsync<InputValidationException>(async () => await _reservationsService.Add(reservation));
+        }
+        
         [Test]
         public async Task Update_ModelValid_ReturnsEditedReservation()
         {
@@ -217,6 +230,19 @@ namespace OneHotelBooking.UnitTests
                 new TestCaseData(new Reservation { RoomId = 1, GuestInfo = string.Empty }).SetName("InvalidEmptyGuestInfo"),
                 new TestCaseData(new Reservation { RoomId = 1, GuestInfo = "G", StartDate = null }).SetName("InvalidStartDate"),
                 new TestCaseData(new Reservation { RoomId = 1, GuestInfo = "G", StartDate = new DateTime(2021, 5, 5), EndDate = null }).SetName("InvalidStartDate"),
+            };
+
+        private static IEnumerable<TestCaseData> InvalidDates =>
+            new List<TestCaseData>
+            {
+                new TestCaseData(new DateTime(2021, 5, 4), new DateTime(2021, 5, 4)).SetName("StartDateSameEnd"),
+                new TestCaseData(new DateTime(2021, 5, 20), new DateTime(2021, 6, 30)).SetName("TooLongReserveDuration"),
+                new TestCaseData(new DateTime(2021, 5, 3), new DateTime(2021, 5, 4)).SetName("StartDateToday"),
+                new TestCaseData(new DateTime(2021, 6, 4), new DateTime(2021, 6, 5)).SetName("StartDateTooManyDaysAdvance"),
+                new TestCaseData(new DateTime(2021, 5, 9), new DateTime(2021, 5, 11)).SetName("EndDateOverlapsAnotherReservation"),
+                new TestCaseData(new DateTime(2021, 5, 12), new DateTime(2021, 5, 14)).SetName("StartDateOverlapsAnotherReservation"),
+                new TestCaseData(new DateTime(2021, 5, 17), new DateTime(2021, 5, 20)).SetName("StartDateAndEndDateOverlapsAnotherReservation"),
+                new TestCaseData(new DateTime(2021, 5, 11), new DateTime(2021, 5, 12)).SetName("StartDateAndEndDateOverlapsAnotherReservation")
             };
     }
 }
