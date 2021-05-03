@@ -25,7 +25,7 @@ namespace OneHotelBooking.UnitTests
         }
 
         [Test]
-        public async Task HotelControllerBase_FunctionExecutedSuccessfully_ReturnsFunctionResult()
+        public async Task Executor_FunctionExecutedSuccessfully_ReturnsFunctionResult()
         {
             var expected = new OkResult();
             IActionResult SyncFunc() => expected;
@@ -39,7 +39,7 @@ namespace OneHotelBooking.UnitTests
         }
 
         [Test]
-        public async Task HotelControllerBase_FunctionThrowsKnownException_ReturnsErrorResponse()
+        public async Task Executor_FunctionThrowsKnownException_ReturnsErrorResponse()
         {
             IActionResult SyncFunc() => throw new EntityNotFoundException("");
             Task<IActionResult> AsyncFunc() => Task.Run((Func<IActionResult>)(() => throw new EntityNotFoundException("")));
@@ -55,7 +55,7 @@ namespace OneHotelBooking.UnitTests
         }
 
         [Test]
-        public async Task HotelControllerBase_FunctionThrowsUnknownException_ReturnsErrorResponse()
+        public async Task Executor_FunctionThrowsUnknownException_ReturnsErrorResponse()
         {
             IActionResult SyncFunc() => throw new Exception();
             Task<IActionResult> AsyncFunc() => Task.Run((Func<IActionResult>)(() => throw new Exception()));
