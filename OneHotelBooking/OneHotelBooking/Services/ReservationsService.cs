@@ -2,10 +2,11 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using OneHotelBooking.DateTimeHelpers;
 using OneHotelBooking.DbModels;
 using OneHotelBooking.Exceptions;
+using OneHotelBooking.Infrastructure;
 using OneHotelBooking.Models;
-using OneHotelBooking.Repositories;
 
 namespace OneHotelBooking.Services
 {
@@ -16,10 +17,12 @@ namespace OneHotelBooking.Services
         private const int MinReserveAdvanceDays = 1;
 
         private readonly IRepository _repository;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public ReservationsService(IRepository repository)
+        public ReservationsService(IRepository repository, IDateTimeProvider dateTimeProvider)
         {
             _repository = repository;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<ReservationInfo[]> GetAll(DateTime startDate = default, DateTime endDate = default)
@@ -72,6 +75,8 @@ namespace OneHotelBooking.Services
 
         public async Task<ReservationInfo> Add(Reservation reservation)
         {
+            ValidateModel(reservation);
+
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == reservation.RoomId);
             if (dbRoom == null)
             {
@@ -80,16 +85,16 @@ namespace OneHotelBooking.Services
 
             NormalizeDates(reservation);
 
-            ValidateDates(reservation.StartDate, reservation.EndDate);
+            ValidateDates(reservation.StartDate.Value, reservation.EndDate.Value, _dateTimeProvider.TodayStartOfDayDate);
 
             await CheckDatesForOverlapping(reservation);
 
             var dbReservation = new DbReservation
             {
-                RoomId = reservation.RoomId,
+                RoomId = reservation.RoomId.Value,
                 GuestInfo = reservation.GuestInfo,
-                StartDate = reservation.StartDate,
-                EndDate = reservation.EndDate
+                StartDate = reservation.StartDate.Value,
+                EndDate = reservation.EndDate.Value
             };
 
             _repository.Add(dbReservation);
@@ -100,10 +105,11 @@ namespace OneHotelBooking.Services
 
         public async Task<ReservationInfo> Update(int reservationId, Reservation reservation)
         {
+            ValidateModel(reservation);
+
             var dbReservation = await _repository.Get<DbReservation>().FirstOrDefaultAsync(r => r.Id == reservationId);
             if (dbReservation == null)
             {
-
                 throw new EntityNotFoundException($"Reservation {reservationId} not found.");
             }
 
@@ -115,14 +121,14 @@ namespace OneHotelBooking.Services
 
             NormalizeDates(reservation);
 
-            ValidateDates(reservation.StartDate, reservation.EndDate);
+            ValidateDates(reservation.StartDate.Value, reservation.EndDate.Value, _dateTimeProvider.TodayStartOfDayDate);
 
             await CheckDatesForOverlapping(reservation);
 
-            dbReservation.RoomId = reservation.RoomId;
+            dbReservation.RoomId = reservation.RoomId.Value;
             dbReservation.GuestInfo = reservation.GuestInfo;
-            dbReservation.StartDate = reservation.StartDate;
-            dbReservation.EndDate = reservation.EndDate;
+            dbReservation.StartDate = reservation.StartDate.Value;
+            dbReservation.EndDate = reservation.EndDate.Value;
 
             await _repository.SaveChangesAsync();
 
@@ -141,6 +147,15 @@ namespace OneHotelBooking.Services
             await _repository.SaveChangesAsync();
         }
 
+        private static void ValidateModel(Reservation reservation)
+        {
+            if (reservation == null) { throw new InputValidationException($"{nameof(reservation)} is null."); }
+            if (!reservation.RoomId.HasValue) { throw new InputValidationException($"{nameof(reservation.RoomId)} is null."); }
+            if (string.IsNullOrEmpty(reservation.GuestInfo)) { throw new InputValidationException($"{nameof(reservation.GuestInfo)} is null or empty."); }
+            if (!reservation.StartDate.HasValue) { throw new InputValidationException($"{nameof(reservation.StartDate)} is null."); }
+            if (!reservation.EndDate.HasValue) { throw new InputValidationException($"{nameof(reservation.EndDate)} is null."); }
+        }
+
         private static ReservationInfo ToReservationInfoModel(DbReservation dbReservation)
         {
             return new ReservationInfo
@@ -156,15 +171,15 @@ namespace OneHotelBooking.Services
 
         private static void NormalizeDates(Reservation reservation)
         {
-            reservation.StartDate = reservation.StartDate.StartOfDay();
-            reservation.EndDate = reservation.EndDate.StartOfDay();
+            reservation.StartDate = reservation.StartDate.Value.StartOfDay();
+            reservation.EndDate = reservation.EndDate.Value.StartOfDay();
         }
 
-        private static void ValidateDates(DateTime startDate, DateTime endDate)
+        private static void ValidateDates(DateTime startDate, DateTime endDate, DateTime todayDate)
         {
             if (startDate >= endDate)
             {
-                throw new InputValidationException($"Start date {startDate} can't be after or on the same End date {endDate}");
+                throw new InputValidationException($"Start date {startDate} is later or on the same End date {endDate}");
             }
 
             var reserveDuration = (int)(endDate - startDate).TotalDays;
@@ -173,7 +188,7 @@ namespace OneHotelBooking.Services
                 throw new InputValidationException($"Reserve duration is too long {reserveDuration} days, set it less or equal than {MaxReserveDurationDays} days.");
             }
 
-            var reserveAdvanceDays = (int)(startDate - DateTime.Today.StartOfDay()).TotalDays;
+            var reserveAdvanceDays = (int)(startDate - todayDate).TotalDays;
             if (reserveAdvanceDays < MinReserveAdvanceDays)
             {
                 throw new InputValidationException($"Start of reservation should be at least the next day");
@@ -181,7 +196,7 @@ namespace OneHotelBooking.Services
 
             if (reserveAdvanceDays > MaxReserveAdvanceDays)
             {
-                throw new InputValidationException($"Start of reservation can't be more than {MaxReserveAdvanceDays} days in advance.");
+                throw new InputValidationException($"Start of reservation more than {MaxReserveAdvanceDays} days in advance.");
             }
         }
 

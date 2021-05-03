@@ -5,4 +5,7 @@ This project requires [.NET 5.0 SDK](https://dotnet.microsoft.com/download/dotne
 Check a `ConnectionString` in `appsettings.json` `ConnectionStrings.DefaultConnection`, and set the server name in parameter `Server`.
 Currently it is `Server=localhost\\MSSQLSERVER01`
 
+Then run migrations to create database.
+Execute `update-database` in **Package Manager Console**.
+
 Or just switch to `in_memory_db` branch and run project with **database in memory**.

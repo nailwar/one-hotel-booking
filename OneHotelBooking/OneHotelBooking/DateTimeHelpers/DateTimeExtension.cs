@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OneHotelBooking
+namespace OneHotelBooking.DateTimeHelpers
 {
     public static class DateTimeExtension
     {

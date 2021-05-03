@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OneHotelBooking.Exceptions;
 using OneHotelBooking.Models;
 using OneHotelBooking.DbModels;
-using OneHotelBooking.Repositories;
+using OneHotelBooking.Infrastructure;
 
 namespace OneHotelBooking.Services
 {
@@ -37,17 +37,19 @@ namespace OneHotelBooking.Services
 
         public async Task<RoomInfo> Add(Room room)
         {
-            var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number);
-            if (isNameNotUnique)
+            ValidateModel(room);
+
+            var isNumberNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number);
+            if (isNumberNotUnique)
             {
                 throw new InputValidationException($"Room {room.Number} already added.");
             }
 
             var dbRoom = new DbRoom
             {
-                Number = room.Number,
+                Number = room.Number.Value,
                 Description = room.Description,
-                Price = room.Price
+                Price = room.Price.Value
             };
 
             _repository.Add(dbRoom);
@@ -58,6 +60,8 @@ namespace OneHotelBooking.Services
 
         public async Task<RoomInfo> Update(int roomId, Room room)
         {
+            ValidateModel(room);
+
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == roomId);
             if (dbRoom == null)
             {
@@ -65,15 +69,15 @@ namespace OneHotelBooking.Services
                 throw new EntityNotFoundException($"Room {roomId} not found.");
             }
 
-            var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number && r.Id != roomId);
-            if (isNameNotUnique)
+            var isNumberNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number && r.Id != roomId);
+            if (isNumberNotUnique)
             {
                 throw new InputValidationException($"Room {room.Number} already exists, use another number.");
             }
 
-            dbRoom.Number = room.Number;
+            dbRoom.Number = room.Number.Value;
             dbRoom.Description = room.Description;
-            dbRoom.Price = room.Price;
+            dbRoom.Price = room.Price.Value;
 
             await _repository.SaveChangesAsync();
 
@@ -90,6 +94,13 @@ namespace OneHotelBooking.Services
 
             _repository.Remove(dbRoom);
             await _repository.SaveChangesAsync();
+        }
+
+        private static void ValidateModel(Room room)
+        {
+            if (room == null) { throw new InputValidationException($"{nameof(room)} is null."); }
+            if (!room.Number.HasValue) { throw new InputValidationException($"{nameof(room.Number)} is null."); }
+            if (!room.Price.HasValue) { throw new InputValidationException($"{nameof(room.Price)} is null."); }
         }
 
         private static RoomInfo ToRoomInfoModel(DbRoom dbRoom)
