@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OneHotelBooking.EntityConfigurations;
 
-namespace OneHotelBooking
+namespace OneHotelBooking.Infrastructure
 {
     public class HotelContext : DbContext
     {
         public HotelContext(DbContextOptions<HotelContext> options) : base(options)
         {
-            Database.Migrate();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -15,7 +15,7 @@ namespace OneHotelBooking
         {
             new DbReservation { Id = 1, RoomId = 1, GuestInfo = "John Doe, with a dog", StartDate = new DateTime(2021, 5, 10), EndDate = new DateTime(2021, 5, 13)},
             new DbReservation { Id = 2, RoomId = 1, GuestInfo = "Kate Spring", StartDate = new DateTime(2021, 5, 18), EndDate = new DateTime(2021, 5, 20)},
-            new DbReservation { Id = 3, RoomId = 1, GuestInfo = "Ivan Ivanov", StartDate = new DateTime(2021, 5, 5), EndDate = new DateTime(2021, 5, 8)},
+            new DbReservation { Id = 3, RoomId = 2, GuestInfo = "Ivan Ivanov", StartDate = new DateTime(2021, 5, 5), EndDate = new DateTime(2021, 5, 8)},
         };
     }
 }

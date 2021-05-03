@@ -8,7 +8,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using OneHotelBooking.Repositories;
+using OneHotelBooking.DateTimeHelpers;
+using OneHotelBooking.Infrastructure;
 using OneHotelBooking.Services;
 
 namespace OneHotelBooking
@@ -48,6 +49,7 @@ namespace OneHotelBooking
 
             services.AddTransient<IRoomsService, RoomsService>();
             services.AddTransient<IReservationsService, ReservationsService>();
+            services.AddTransient<IDateTimeProvider, DateTimeProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

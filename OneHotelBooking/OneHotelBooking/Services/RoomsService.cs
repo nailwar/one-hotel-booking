@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OneHotelBooking.Exceptions;
 using OneHotelBooking.Models;
 using OneHotelBooking.DbModels;
-using OneHotelBooking.Repositories;
+using OneHotelBooking.Infrastructure;
 
 namespace OneHotelBooking.Services
 {
@@ -39,8 +39,8 @@ namespace OneHotelBooking.Services
         {
             ValidateModel(room);
 
-            var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number);
-            if (isNameNotUnique)
+            var isNumberNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number);
+            if (isNumberNotUnique)
             {
                 throw new InputValidationException($"Room {room.Number} already added.");
             }
@@ -69,8 +69,8 @@ namespace OneHotelBooking.Services
                 throw new EntityNotFoundException($"Room {roomId} not found.");
             }
 
-            var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number && r.Id != roomId);
-            if (isNameNotUnique)
+            var isNumberNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number && r.Id != roomId);
+            if (isNumberNotUnique)
             {
                 throw new InputValidationException($"Room {room.Number} already exists, use another number.");
             }
