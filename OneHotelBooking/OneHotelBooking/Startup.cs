@@ -29,7 +29,7 @@ namespace OneHotelBooking
                 throw new Exception("'DefaultConnection' value is missing, check environment variables.");
             }
 
-            services.AddDbContext<HotelContext>(options => options.UseSqlServer(connectionString).EnableSensitiveDataLogging());
+            services.AddDbContext<HotelContext>(options => options.UseInMemoryDatabase("hotel_db").EnableSensitiveDataLogging());
             services.AddScoped<IRepository, HotelRepository>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();

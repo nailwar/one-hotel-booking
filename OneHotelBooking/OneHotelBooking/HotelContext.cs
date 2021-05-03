@@ -7,7 +7,7 @@ namespace OneHotelBooking
     {
         public HotelContext(DbContextOptions<HotelContext> options) : base(options)
         {
-            Database.Migrate();
+            Database.EnsureCreated();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
