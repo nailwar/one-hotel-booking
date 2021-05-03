@@ -35,6 +35,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(IEnumerable<RoomInfo>), (int)HttpStatusCode.OK)]
         public Task<IActionResult> Get()
         {
+            _logger.LogInformation("Rooms get has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _roomsService.GetAll()));
         }
 
@@ -48,6 +49,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Get(int id)
         {
+            _logger.LogInformation("Rooms get by id has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _roomsService.GetById(id)));
         }
 
@@ -61,6 +63,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.BadRequest)]
         public Task<IActionResult> Post([FromBody] Room room)
         {
+            _logger.LogInformation("Rooms post has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _roomsService.Add(room)));
         }
 
@@ -76,6 +79,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Put(int id, [FromBody] Room room)
         {
+            _logger.LogInformation("Rooms put has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _roomsService.Update(id, room)));
         }
 
@@ -89,6 +93,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Delete(int id)
         {
+            _logger.LogInformation("Rooms delete has been invoked.");
             return ExecuteAsync(async () =>
             {
                 await _roomsService.Delete(id);

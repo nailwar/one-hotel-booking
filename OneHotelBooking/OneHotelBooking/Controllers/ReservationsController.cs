@@ -37,6 +37,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Get([FromQuery]int? roomId = default, [FromQuery]DateTime startDate = default, [FromQuery]DateTime endDate = default)
         {
+            _logger.LogInformation("Reservations get has been invoked.");
             return roomId.HasValue ?
                 ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetByRoomId(roomId.Value, startDate, endDate))) :
                 ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetAll(startDate, endDate)));
@@ -52,6 +53,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Get(int id)
         {
+            _logger.LogInformation("Reservations get by id has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _reservationsService.GetById(id)));
         }
 
@@ -65,6 +67,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Post([FromBody] Reservation reservation)
         {
+            _logger.LogInformation("Reservations post has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _reservationsService.Add(reservation)));
         }
 
@@ -79,6 +82,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Put(int id, [FromBody] Reservation reservation)
         {
+            _logger.LogInformation("Reservations put has been invoked.");
             return ExecuteAsync(async () => new OkObjectResult(await _reservationsService.Update(id, reservation)));
         }
 
@@ -92,6 +96,7 @@ namespace OneHotelBooking.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.NotFound)]
         public Task<IActionResult> Delete(int id)
         {
+            _logger.LogInformation("Reservations delete has been invoked.");
             return ExecuteAsync(async () =>
             {
                 await _reservationsService.Delete(id);
