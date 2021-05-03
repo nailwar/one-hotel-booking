@@ -37,6 +37,8 @@ namespace OneHotelBooking.Services
 
         public async Task<RoomInfo> Add(Room room)
         {
+            ValidateModel(room);
+
             var isNameNotUnique = await _repository.Get<DbRoom>().AnyAsync(r => r.Number == room.Number);
             if (isNameNotUnique)
             {
@@ -45,9 +47,9 @@ namespace OneHotelBooking.Services
 
             var dbRoom = new DbRoom
             {
-                Number = room.Number,
+                Number = room.Number.Value,
                 Description = room.Description,
-                Price = room.Price
+                Price = room.Price.Value
             };
 
             _repository.Add(dbRoom);
@@ -58,6 +60,8 @@ namespace OneHotelBooking.Services
 
         public async Task<RoomInfo> Update(int roomId, Room room)
         {
+            ValidateModel(room);
+
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == roomId);
             if (dbRoom == null)
             {
@@ -71,9 +75,9 @@ namespace OneHotelBooking.Services
                 throw new InputValidationException($"Room {room.Number} already exists, use another number.");
             }
 
-            dbRoom.Number = room.Number;
+            dbRoom.Number = room.Number.Value;
             dbRoom.Description = room.Description;
-            dbRoom.Price = room.Price;
+            dbRoom.Price = room.Price.Value;
 
             await _repository.SaveChangesAsync();
 
@@ -90,6 +94,13 @@ namespace OneHotelBooking.Services
 
             _repository.Remove(dbRoom);
             await _repository.SaveChangesAsync();
+        }
+
+        private static void ValidateModel(Room room)
+        {
+            if (room == null) { throw new InputValidationException($"{nameof(room)} is null."); }
+            if (!room.Number.HasValue) { throw new InputValidationException($"{nameof(room.Number)} is null."); }
+            if (!room.Price.HasValue) { throw new InputValidationException($"{nameof(room.Price)} is null."); }
         }
 
         private static RoomInfo ToRoomInfoModel(DbRoom dbRoom)

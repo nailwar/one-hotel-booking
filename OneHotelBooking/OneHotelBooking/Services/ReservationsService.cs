@@ -72,6 +72,8 @@ namespace OneHotelBooking.Services
 
         public async Task<ReservationInfo> Add(Reservation reservation)
         {
+            ValidateModel(reservation);
+
             var dbRoom = await _repository.Get<DbRoom>().FirstOrDefaultAsync(r => r.Id == reservation.RoomId);
             if (dbRoom == null)
             {
@@ -80,16 +82,16 @@ namespace OneHotelBooking.Services
 
             NormalizeDates(reservation);
 
-            ValidateDates(reservation.StartDate, reservation.EndDate);
+            ValidateDates(reservation.StartDate.Value, reservation.EndDate.Value);
 
             await CheckDatesForOverlapping(reservation);
 
             var dbReservation = new DbReservation
             {
-                RoomId = reservation.RoomId,
+                RoomId = reservation.RoomId.Value,
                 GuestInfo = reservation.GuestInfo,
-                StartDate = reservation.StartDate,
-                EndDate = reservation.EndDate
+                StartDate = reservation.StartDate.Value,
+                EndDate = reservation.EndDate.Value
             };
 
             _repository.Add(dbReservation);
@@ -100,10 +102,11 @@ namespace OneHotelBooking.Services
 
         public async Task<ReservationInfo> Update(int reservationId, Reservation reservation)
         {
+            ValidateModel(reservation);
+
             var dbReservation = await _repository.Get<DbReservation>().FirstOrDefaultAsync(r => r.Id == reservationId);
             if (dbReservation == null)
             {
-
                 throw new EntityNotFoundException($"Reservation {reservationId} not found.");
             }
 
@@ -115,14 +118,14 @@ namespace OneHotelBooking.Services
 
             NormalizeDates(reservation);
 
-            ValidateDates(reservation.StartDate, reservation.EndDate);
+            ValidateDates(reservation.StartDate.Value, reservation.EndDate.Value);
 
             await CheckDatesForOverlapping(reservation);
 
-            dbReservation.RoomId = reservation.RoomId;
+            dbReservation.RoomId = reservation.RoomId.Value;
             dbReservation.GuestInfo = reservation.GuestInfo;
-            dbReservation.StartDate = reservation.StartDate;
-            dbReservation.EndDate = reservation.EndDate;
+            dbReservation.StartDate = reservation.StartDate.Value;
+            dbReservation.EndDate = reservation.EndDate.Value;
 
             await _repository.SaveChangesAsync();
 
@@ -141,6 +144,15 @@ namespace OneHotelBooking.Services
             await _repository.SaveChangesAsync();
         }
 
+        private static void ValidateModel(Reservation reservation)
+        {
+            if (reservation == null) { throw new InputValidationException($"{nameof(reservation)} is null."); }
+            if (!reservation.RoomId.HasValue) { throw new InputValidationException($"{nameof(reservation.RoomId)} is null."); }
+            if (string.IsNullOrEmpty(reservation.GuestInfo)) { throw new InputValidationException($"{nameof(reservation.GuestInfo)} is null or empty."); }
+            if (!reservation.StartDate.HasValue) { throw new InputValidationException($"{nameof(reservation.StartDate)} is null."); }
+            if (!reservation.EndDate.HasValue) { throw new InputValidationException($"{nameof(reservation.EndDate)} is null."); }
+        }
+
         private static ReservationInfo ToReservationInfoModel(DbReservation dbReservation)
         {
             return new ReservationInfo
@@ -156,8 +168,8 @@ namespace OneHotelBooking.Services
 
         private static void NormalizeDates(Reservation reservation)
         {
-            reservation.StartDate = reservation.StartDate.StartOfDay();
-            reservation.EndDate = reservation.EndDate.StartOfDay();
+            reservation.StartDate = reservation.StartDate.Value.StartOfDay();
+            reservation.EndDate = reservation.EndDate.Value.StartOfDay();
         }
 
         private static void ValidateDates(DateTime startDate, DateTime endDate)
