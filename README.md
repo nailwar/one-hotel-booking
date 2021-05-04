@@ -9,7 +9,7 @@ Then run migrations to create database.
 Execute `update-database` in **Package Manager Console**.
 
 Or just switch to `in_memory_db` branch and run project with **database in memory**.
-But there are unit tests does not work.
+But there are unit tests do not work.
 
 ## Testing
 Main functionality has been covered by unit tests.
