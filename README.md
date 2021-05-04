@@ -11,10 +11,10 @@ Execute `update-database` in **Package Manager Console**.
 Or just switch to `in_memory_db` branch and run project with **database in memory**.
 But there are unit tests does not work.
 
-##Testing
+## Testing
 Main functionality has been covered by unit tests.
 
-##Tech stack
+## Tech stack
 * Web Framework:
     * Microsoft.AspNetCore version 5.0.5
     * Microsoft.EntityFrameworkCore version 5.0.5
